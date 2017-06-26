@@ -16,7 +16,7 @@ struct PThread {
         volatile callback_func func;
         unsigned int whenToExecute;
 
-        void terminate(bool flag) {this->_acitve = flag;};
+        void terminate(bool flag) {this->_active = flag;};
         bool terminate(void) {return this->_active;};
 
     private:
@@ -25,11 +25,11 @@ struct PThread {
 };
 
 enum TIME_P {
-    SECOND_P = 1000
-    ,MINUTE_P = SECOND_P * 60
-    ,HOUR_P = MINUTE_P * 60
-    ,DAY_P = HOUR_P * 24
-    ,WEEK_P = DAY_P * 7
+    SECOND_P    = 0x3E8 // 1000
+    ,MINUTE_P   = SECOND_P * 60 // 60000
+    ,HOUR_P     = MINUTE_P * 60 // 3600000
+    ,DAY_P      = HOUR_P * 24 // 86400000
+    ,WEEK_P     = DAY_P * 7 // 604800000
 };
 
 class Protothread {
@@ -40,7 +40,7 @@ class Protothread {
         void processThreads(void);
     
     private:
-        const unsigned int _rollover = 4294967296;
+        const unsigned int _rollover = 0xFFFFFFFF; // 4294967295
         PThread_vector _threads;
 
 };
