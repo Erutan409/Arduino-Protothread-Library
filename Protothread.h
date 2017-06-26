@@ -16,8 +16,8 @@ struct PThread {
         volatile callback_func func;
         unsigned int whenToExecute;
 
-        void terminate(bool flag) {this->_active = flag;};
-        bool terminate(void) {return this->_active;};
+        void terminate(bool flag) {this->_active = !flag;};
+        bool terminate(void) {return !this->_active;};
 
     private:
         bool _active = true;
@@ -35,11 +35,13 @@ enum TIME_P {
 class Protothread {
 
     public:
-        Protothread(void);
+        static Protothread *getInst(void);
         PThread *createThread(void (*func)(void), unsigned int whenToExecute);
         void processThreads(void);
     
     private:
+        Protothread(void);
+        static Protothread *_inst;
         const unsigned int _rollover = 0xFFFFFFFF; // 4294967295
         PThread_vector _threads;
 
