@@ -10,9 +10,18 @@ typedef std::vector<struct PThread> PThread_vector;
 class Protothread; // forward declare
 
 struct PThread {
-    volatile Protothread *inst;
-    volatile callback_func func;
-    unsigned int whenToExecute;
+
+    public:
+        volatile Protothread *inst;
+        volatile callback_func func;
+        unsigned int whenToExecute;
+
+        void terminate(bool flag) {this->_acitve = flag;};
+        bool terminate(void) {return this->_active;};
+
+    private:
+        bool _active = true;
+
 };
 
 enum TIME_P {
@@ -27,7 +36,7 @@ class Protothread {
 
     public:
         Protothread(void);
-        void createThread(void (*func)(void), unsigned int whenToExecute);
+        PThread *createThread(void (*func)(void), unsigned int whenToExecute);
         void processThreads(void);
     
     private:

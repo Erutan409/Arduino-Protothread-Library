@@ -3,7 +3,7 @@
 
 Protothread::Protothread(void) {}
 
-void Protothread::createThread(void (*func)(void), unsigned int whenToExecute) {
+PThread *Protothread::createThread(void (*func)(void), unsigned int whenToExecute) {
 
     unsigned int current = millis();
     unsigned int diff = this->_rollover - current;
@@ -13,6 +13,8 @@ void Protothread::createThread(void (*func)(void), unsigned int whenToExecute) {
     newThread.func = func;
     newThread.whenToExecute = diff >= whenToExecute? current + whenToExecute : whenToExecute - diff;
     this->_threads.push_back(newThread);
+
+    return &newThread;
 
 }
 
@@ -24,9 +26,12 @@ void Protothread::processThreads(void) {
         
         struct PThread &t = this->_threads.at(i);
 
+        if (t.terminate()) {goto removeVector;}
         if (t.whenToExecute > current) {continue;}
 
         t.func();
+
+        removeVector:
         this->_threads.erase(i);
         i--; // reset back one
 
