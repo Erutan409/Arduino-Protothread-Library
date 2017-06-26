@@ -1,12 +1,35 @@
 #include <Protothread.h>
+#include <algorithm>
 
 Protothread::Protothread(void) {}
 
-PThread *Protothread::createThread(void (*func)(void), unsigned int whenToExecute) {
+void Protothread::createThread(void (*func)(void), unsigned int whenToExecute) {
 
-    //[](){}
-    PThread newThread(func, this);
-    this->_threads.push_back(&newThread);
-    return &newThread;
+    unsigned int current = millis();
+    unsigned int diff = this->_rollover - current;
+
+    struct PThread newThread;
+    newThread.inst = this;
+    newThread.func = func;
+    newThread.whenToExecute = diff >= whenToExecute? current + whenToExecute : whenToExecute - diff;
+    this->_threads.push_back(newThread);
+
+}
+
+void Protothread::processThreads(void) {
+
+    unsigned int current = millis();
+
+    for (int i = 0; i < this->_threads.size(); i++) {
+        
+        struct PThread &t = this->_threads.at(i);
+
+        if (t.whenToExecute > current) {continue;}
+
+        t.func();
+        this->_threads.erase(i);
+        i--; // reset back one
+
+    }
 
 }
