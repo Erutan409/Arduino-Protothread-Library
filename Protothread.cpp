@@ -11,36 +11,41 @@ Protothread *Protothread::getInst(void) {
 
 }
 
-PThread *Protothread::createThread(void (*func)(void), unsigned int whenToExecute) {
+// default to millis
+PThread *Protothread::createThread(callback_func func, unsigned int whenToExecute) {
+    return createThread(func, whenToExecute, MILLIS_DELAY_P);
+}
 
-    unsigned int current = millis();
+PThread *Protothread::createThread(callback_func func, unsigned int whenToExecute, DELAY_P delayType) {
+
+    unsigned int current = delayType == MICROS_DELAY_P? micros() : millis();
     unsigned int diff = this->_rollover - current;
 
     PThread newThread;
-    newThread.inst = this;
-    newThread.func = func;
-    newThread.whenToExecute = diff >= whenToExecute? current + whenToExecute : whenToExecute - diff;
+    newThread.setFunc(func)
+            .whenToExecute(diff >= whenToExecute? current + whenToExecute : whenToExecute - diff)
+            .delayType(delayType);
     this->_threads.push_back(newThread);
 
-    return &newThread;
+    return &this->_threads.at(this->_threads.size() - 1);
 
 }
 
 void Protothread::processThreads(void) {
 
-    unsigned int current = millis();
-
     for (int i = 0; i < this->_threads.size(); i++) {
         
         PThread &t = this->_threads.at(i);
 
-        if (t.terminate()) {goto removeVector;}
-        if (t.whenToExecute > current) {continue;}
+        unsigned int current = *t.delayType() == MICROS_DELAY_P? micros() : millis();
 
-        t.func();
+        if (t.terminate()) {goto removeVector;}
+        if (*t.whenToExecute() > current) {continue;}
+
+        t.exec();
 
         removeVector:
-        this->_threads.erase(i);
+        this->_threads.erase(this->_threads.begin() + i);
         i--; // reset back one
 
     }
