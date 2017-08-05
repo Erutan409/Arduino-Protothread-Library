@@ -1,7 +1,7 @@
 #ifndef PROTOTHREAD_H
 #define PROTOTHREAD_H
 
-#include <StandardCplusplus.h>
+#include <StandardCplusplus.h> // https://github.com/SGSSGene/StandardCplusplus
 #include <vector>
 #include <Arduino.h>
 
